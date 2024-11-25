@@ -21,7 +21,7 @@ export function GameControls() {
   const canPassTurn = phase === 'action' && hasDiscarded && hasDrawn;
   const canSkipAction = phase === 'action' && !hasPlayedAction;
 
-  const phaseMessage = getPhaseMessage(phase, hasDiscarded, hasDrawn, hasPlayedAction, totalCards, 0);
+  const phaseMessage = getPhaseMessage(phase, hasDiscarded, hasDrawn, hasPlayedAction, totalCards, turn);
 
   return (
     <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 transition-colors duration-300">

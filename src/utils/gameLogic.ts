@@ -16,11 +16,18 @@ export function getPhaseMessage(
   hasDiscarded: boolean, 
   hasDrawn: boolean, 
   hasPlayedAction: boolean,
-  playedCardsLastTurn: number
+  playedCardsLastTurn: number,
+  turn: number
 ): string {
   switch (phase) {
+    case 'setup':
+      return "Choisissez 2 cartes pour votre réserve";
+      
     case 'discard':
-      if (playedCardsLastTurn === 0) {
+      if (turn === 1) {
+        return "Pour commencer la partie veuillez vous défausser d'une carte";
+      }
+      if (playedCardsLastTurn > 0) {
         return '';
       }
       return hasDiscarded ? '' : "Défaussez une carte pour continuer";

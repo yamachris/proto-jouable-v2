@@ -1,10 +1,12 @@
 import { AIPlayer } from './AIPlayer';
 import { GameState } from '../store/gameStore';
+import { useState } from 'react';
 
 export class AIGameManager {
   private ai1: AIPlayer;
   private ai2: AIPlayer;
   private gameHistory: any[] = [];
+  private isFirstTurn: boolean = true;
 
   constructor(private gameState: GameState) {
     this.ai1 = new AIPlayer(gameState);
@@ -69,5 +71,12 @@ export class AIGameManager {
     // Sauvegarder les données de la partie pour l'apprentissage
     console.log('Game Over - Saving game data for AI learning');
     console.log('Game History:', this.gameHistory);
+  }
+
+  private handleCardDiscard = () => {
+    if (this.isFirstTurn) {
+      this.isFirstTurn = false;
+    }
+    // ... reste de la logique de défaussement
   }
 }
