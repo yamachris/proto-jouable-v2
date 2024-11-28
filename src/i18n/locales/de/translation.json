@@ -1,0 +1,55 @@
+{
+    "game": {
+      "turn": "Runde {{number}}",
+      "discard": "Ablage",
+      "draw": "Ziehen",
+      "action": "Aktion",
+      "messages": {
+        "discardPhase": "Lege eine Karte ab, um weiterzumachen",
+        "drawPhase": "Ziehe eine Karte",
+        "actionPhase": "Spiele deine Karten oder überspringe deinen Zug",
+        "canEndTurn": "Du kannst deinen Zug beenden",
+        "strategicShuffleFirst": "Erstes Strategisches Mischen! ⚠️ Die nächste Nutzung lässt dich deinen Zug aussetzen.",
+        "strategicShuffleNext": "Strategisches Mischen abgeschlossen - Ende deines Zuges"
+      },
+      "gameOver": {
+        "title": "Spiel Vorbei",
+        "surrendered": "Du hast aufgegeben",
+        "finalScore": "Endstand",
+        "newGame": "Neues Spiel"
+      },
+      "setup": {
+        "title": "Vorbereitungsphase",
+        "welcome": "Willkommen bei UNIT Card Game! Wähle bitte 2 Karten für deine Reserve aus",
+        "reserve": "Reserve",
+        "yourHand": "Deine Hand",
+        "handCount": "Karten",
+        "selectCards": "Wähle 2 Karten für die Reserve",
+        "startGame": "Spiel Starten"
+      },
+      "cards": {
+        "deck": "Stapel",
+        "discard": "Ablage",
+        "hand": "Hand",
+        "reserve": "Reserve",
+        "total": "Gesamt",
+        "slot": "Platz",
+        "jack": "Bube",
+        "king": "König"
+      },
+      "actions": {
+        "exchange": "Tauschen",
+        "surrender": "Aufgeben",
+        "skipAction": "Aktion Überspringen",
+        "endTurn": "Zug Beenden",
+        "strategicShuffle": "Strategisches Mischen"
+      },
+      "ui": {
+        "startMessage": "Wähle deine erste Karte, die du ablegen möchtest",
+        "cardCount": "Karten",
+        "strategicShuffle": "Strategisches Mischen",
+        "cancel": "Abbrechen",
+        "confirm": "Bestätigen"
+      }
+    }
+}

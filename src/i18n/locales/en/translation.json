@@ -1,0 +1,55 @@
+{
+  "game": {
+    "turn": "Turn {{number}}",
+    "discard": "Discard",
+    "draw": "Draw",
+    "action": "Action",
+    "messages": {
+      "discardPhase": "Discard a card to continue",
+      "drawPhase": "Draw a card",
+      "actionPhase": "Play your cards or skip your turn",
+      "canEndTurn": "You can end your turn",
+      "strategicShuffleFirst": "First Strategic Shuffle! ⚠️ The next use will make you skip your turn.",
+      "strategicShuffleNext": "Strategic shuffle completed - End of your turn"
+    },
+    "gameOver": {
+      "title": "Game Over",
+      "surrendered": "You surrendered",
+      "finalScore": "Final Score",
+      "newGame": "New Game"
+    },
+    "setup": {
+      "title": "Setup Phase",
+      "welcome": "Welcome to UNIT Card Game! Please select 2 cards for your reserve",
+      "reserve": "Reserve",
+      "yourHand": "Your Hand",
+      "handCount": "cards",
+      "selectCards": "Select 2 cards for the reserve",
+      "startGame": "Start Game"
+    },
+    "cards": {
+      "deck": "Deck",
+      "discard": "Discard",
+      "hand": "Hand",
+      "reserve": "Reserve",
+      "total": "Total",
+      "slot": "Slot",
+      "jack": "Jack",
+      "king": "King"
+    },
+    "actions": {
+      "exchange": "Exchange",
+      "surrender": "Surrender",
+      "skipAction": "Skip Action",
+      "endTurn": "End Turn",
+      "strategicShuffle": "Strategic Shuffle"
+    },
+    "ui": {
+      "startMessage": "Select your first card to discard",
+      "cardCount": "cards",
+      "strategicShuffle": "Strategic Shuffle",
+      "cancel": "Cancel",
+      "confirm": "Confirm"
+    }
+  }
+}

@@ -1,0 +1,56 @@
+{
+    "game": {
+      "turn": "ターン {{number}}",
+      "discard": "捨て札",
+      "draw": "ドロー",
+      "action": "アクション",
+      "messages": {
+        "discardPhase": "カードを1枚捨てて続けてください",
+        "drawPhase": "カードを1枚引いてください",
+        "actionPhase": "カードをプレイするか、ターンをスキップしてください",
+        "canEndTurn": "ターンを終了できます",
+        "strategicShuffleFirst": "最初の戦略的シャッフル！⚠️ 次回の使用であなたのターンがスキップされます。",
+        "strategicShuffleNext": "戦略的シャッフル完了 - あなたのターンの終了"
+      },
+      "gameOver": {
+        "title": "ゲーム終了",
+        "surrendered": "降参しました",
+        "finalScore": "最終スコア",
+        "newGame": "新しいゲーム"
+      },
+      "setup": {
+        "title": "準備フェーズ",
+        "welcome": "UNITカードゲームへようこそ！リザーブ用に2枚のカードを選んでください",
+        "reserve": "リザーブ",
+        "yourHand": "あなたの手札",
+        "handCount": "枚のカード",
+        "selectCards": "リザーブ用に2枚のカードを選んでください",
+        "startGame": "ゲームを開始"
+      },
+      "cards": {
+        "deck": "山札",
+        "discard": "捨て札",
+        "hand": "手札",
+        "reserve": "リザーブ",
+        "total": "合計",
+        "slot": "スロット",
+        "jack": "ジャック",
+        "king": "キング"
+      },
+      "actions": {
+        "exchange": "交換する",
+        "surrender": "降参する",
+        "skipAction": "アクションをスキップ",
+        "endTurn": "ターンを終了",
+        "strategicShuffle": "戦略的シャッフル"
+      },
+      "ui": {
+        "startMessage": "最初の捨て札を選んでください",
+        "cardCount": "枚のカード",
+        "strategicShuffle": "戦略的シャッフル",
+        "cancel": "キャンセル",
+        "confirm": "確認"
+      }
+    }
+  }
+  

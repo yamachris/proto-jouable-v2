@@ -1,0 +1,62 @@
+{
+  "game": {
+    "turn": "Tour {{number}}",
+    "discard": "Défausse",
+    "draw": "Pioche",
+    "action": "Action",
+    "messages": {
+      "discardPhase": "Défaussez une carte pour continuer",
+      "drawPhase": "Piochez une carte",
+      "actionPhase": "Jouez vos cartes ou passez votre tour",
+      "canEndTurn": "Vous pouvez terminer votre tour",
+      "strategicShuffleFirst": "Premier mélange stratégique ! ⚠️ La prochaine utilisation vous fera passer votre tour.",
+      "strategicShuffleNext": "Mélange stratégique effectué - Fin de votre tour",
+      "reserveSuitOccupied": "Cette colonne a déjà un activateur (7 ou Joker)",
+      "faceCardPlaced": "{{value}} placé avec un activateur",
+      "wrongSuit": "Cette carte doit être placée dans sa colonne de couleur",
+      "slotOccupied": "Cet emplacement est déjà occupé",
+      "queenHealing": "La Dame vous soigne de {{amount}} PV !",
+      "queenChallengeResult": "Défi {{result}} ! Vous gagnez {{amount}} PV ❤️",
+      "queenChallengeStart": "Défi de la Bonne Dame lancé !"
+    },
+    "gameOver": {
+      "title": "Partie Terminée",
+      "surrendered": "Vous avez abandonné",
+      "finalScore": "Score final",
+      "newGame": "Nouvelle Partie"
+    },
+    "setup": {
+      "title": "Phase de préparation",
+      "welcome": "Bienvenue sur UNIT Card Game! Veuillez sélectionner 2 cartes pour votre réserve",
+      "reserve": "Réserve",
+      "yourHand": "Votre main",
+      "handCount": "cartes",
+      "selectCards": "Sélectionnez 2 cartes pour la réserve",
+      "startGame": "Commencer la partie"
+    },
+    "cards": {
+      "deck": "Pioche",
+      "discard": "Défausse",
+      "hand": "Main",
+      "reserve": "Réserve",
+      "total": "Total",
+      "slot": "Emplacement",
+      "jack": "Valet",
+      "king": "Roi"
+    },
+    "actions": {
+      "exchange": "Échanger",
+      "surrender": "Abandonner",
+      "skipAction": "Passer l'Action",
+      "endTurn": "Fin du Tour",
+      "strategicShuffle": "Mélange Stratégique"
+    },
+    "ui": {
+      "startMessage": "Sélectionnez votre première carte à défausser",
+      "cardCount": "cartes",
+      "strategicShuffle": "Mélange Stratégique",
+      "cancel": "Annuler",
+      "confirm": "Confirmer"
+    }
+  }
+} 

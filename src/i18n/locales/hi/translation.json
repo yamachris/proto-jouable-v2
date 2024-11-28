@@ -1,0 +1,56 @@
+{
+    "game": {
+      "turn": "चाल {{number}}",
+      "discard": "त्याग",
+      "draw": "ड्रा करें",
+      "action": "क्रिया",
+      "messages": {
+        "discardPhase": "जारी रखने के लिए एक कार्ड त्यागें",
+        "drawPhase": "एक कार्ड ड्रा करें",
+        "actionPhase": "अपने कार्ड खेलें या अपनी चाल छोड़ें",
+        "canEndTurn": "आप अपनी चाल समाप्त कर सकते हैं",
+        "strategicShuffleFirst": "पहला रणनीतिक शफल! ⚠️ अगली बार उपयोग करने पर आपकी चाल समाप्त हो जाएगी।",
+        "strategicShuffleNext": "रणनीतिक शफल पूरा - आपकी चाल समाप्त"
+      },
+      "gameOver": {
+        "title": "खेल समाप्त",
+        "surrendered": "आपने हार मान ली",
+        "finalScore": "अंतिम स्कोर",
+        "newGame": "नया खेल"
+      },
+      "setup": {
+        "title": "तैयारी चरण",
+        "welcome": "UNIT कार्ड गेम में आपका स्वागत है! कृपया अपने भंडार के लिए 2 कार्ड चुनें",
+        "reserve": "भंडार",
+        "yourHand": "आपके कार्ड",
+        "handCount": "कार्ड",
+        "selectCards": "भंडार के लिए 2 कार्ड चुनें",
+        "startGame": "खेल शुरू करें"
+      },
+      "cards": {
+        "deck": "डेक",
+        "discard": "त्याग",
+        "card": "कार्ड",
+        "reserve": "भंडार",
+        "total": "कुल",
+        "slot": "स्थान",
+        "jack": "जैक",
+        "king": "राजा"
+      },
+      "actions": {
+        "exchange": "बदलें",
+        "surrender": "समर्पण",
+        "skipAction": "क्रिया छोड़ें",
+        "endTurn": "चाल समाप्त करें",
+        "strategicShuffle": "रणनीतिक शफल"
+      },
+      "ui": {
+        "startMessage": "त्यागने के लिए अपना पहला कार्ड चुनें",
+        "cardCount": "कार्ड",
+        "strategicShuffle": "रणनीतिक शफल",
+        "cancel": "रद्द करें",
+        "confirm": "पुष्टि करें"
+      }
+    }
+  }
+  

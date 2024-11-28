@@ -1,0 +1,55 @@
+{
+  "game": {
+    "turn": "回合 {{number}}",
+    "discard": "弃牌",
+    "draw": "抽牌",
+    "action": "行动",
+    "messages": {
+      "discardPhase": "弃置一张牌以继续",
+      "drawPhase": "抽取一张牌",
+      "actionPhase": "使用你的牌或跳过回合",
+      "canEndTurn": "你可以结束本回合",
+      "strategicShuffleFirst": "首次战略洗牌！⚠️ 下一次使用将结束你的回合。",
+      "strategicShuffleNext": "战略洗牌完成 - 回合结束"
+    },
+    "gameOver": {
+      "title": "游戏结束",
+      "surrendered": "你已投降",
+      "finalScore": "最终得分",
+      "newGame": "新游戏"
+    },
+    "setup": {
+      "title": "准备阶段",
+      "welcome": "欢迎来到 UNIT 卡牌游戏！请选择 2 张牌作为你的储备。",
+      "reserve": "储备",
+      "yourHand": "你的手牌",
+      "handCount": "张牌",
+      "selectCards": "请选择 2 张牌作为储备",
+      "startGame": "开始游戏"
+    },
+    "cards": {
+      "deck": "牌堆",
+      "discard": "弃牌堆",
+      "hand": "手牌",
+      "reserve": "储备",
+      "total": "总计",
+      "slot": "槽位",
+      "jack": "杰克",
+      "king": "国王"
+    },
+    "actions": {
+      "exchange": "交换",
+      "surrender": "投降",
+      "skipAction": "跳过行动",
+      "endTurn": "结束回合",
+      "strategicShuffle": "战略洗牌"
+    },
+    "ui": {
+      "startMessage": "请选择你的第一张弃牌",
+      "cardCount": "张牌",
+      "strategicShuffle": "战略洗牌",
+      "cancel": "取消",
+      "confirm": "确认"
+    }
+  }
+}
