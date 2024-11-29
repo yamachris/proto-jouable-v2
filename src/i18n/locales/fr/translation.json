@@ -17,7 +17,8 @@
       "slotOccupied": "Cet emplacement est déjà occupé",
       "queenHealing": "La Dame vous soigne de {{amount}} PV !",
       "queenChallengeResult": "Défi {{result}} ! Vous gagnez {{amount}} PV ❤️",
-      "queenChallengeStart": "Défi de la Bonne Dame lancé !"
+      "queenChallengeStart": "Défi de la Bonne Dame lancé !",
+      "cardExchanged": "Cartes échangées"
     },
     "gameOver": {
       "title": "Partie Terminée",

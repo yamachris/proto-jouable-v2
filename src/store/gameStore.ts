@@ -35,6 +35,8 @@ interface GameState {
     queen: Card | null;
   };
   isMessageClickable: boolean;
+  exchangeMode: boolean;
+  selectedForExchange: Card | null;
 }
 
 // Ajout du type pour le store complet
@@ -54,6 +56,9 @@ export interface GameStore extends GameState {
   getState: () => GameStore;
   handleCardPlace: (suit: Suit, position: number) => void;
   handleQueenChallenge: (isCorrect: boolean) => void;
+  handleCardExchange: (columnCard: Card, playerCard: Card) => void;
+  getPhaseMessage: (phase: Phase, hasDiscarded: boolean, hasDrawn: boolean, hasPlayedAction: boolean, playedCardsLastTurn: number) => string;
+  handleSevenAction: (sevenCard: Card) => void;
 }
 
 // Création du store avec Zustand
@@ -98,6 +103,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
     queen: null
   },
   isMessageClickable: false,
+  exchangeMode: false,
+  selectedForExchange: null,
 
   initializeGame: () => {
     // Création et mélange du deck complet
@@ -358,7 +365,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         hasPlayedAction: true,
         canEndTurn: true,
         playedCardsLastTurn: 0,
-        message: "Action passée"
+        message: t('game.messages.actionSkipped')
       };
     });
   },
@@ -495,6 +502,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
         return state;
       }
 
+
+      
       // Échanger les cartes
       const tempCard = hand[handIndex];
       hand[handIndex] = reserve[reserveIndex];
@@ -647,35 +656,55 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   endTurn: () => {
     set((state) => {
-      // Calculer combien de cartes manquent pour avoir 7 cartes
       const totalCards = state.currentPlayer.hand.length + state.currentPlayer.reserve.length;
-      const cardsNeeded = 7 - totalCards;
+      const nextPhase = totalCards >= 7 ? 'discard' : 'draw';
 
-      // Si on a joué des cartes au tour précédent
-      if (state.playedCardsLastTurn > 0) {
-        // On passe directement à la phase de pioche pour compléter la main
-        return {
-          ...state,
-          phase: 'draw',
-          turn: state.turn + 1,
-          hasDiscarded: true, // On skip la phase de défausse
-          hasDrawn: false,
-          hasPlayedAction: false,
-          message: t('game.messages.drawPhase'),
-          canEndTurn: false
-        };
-      }
-
-      // Si on n'a pas joué de cartes, on doit défausser
       return {
         ...state,
-        phase: 'discard',
-        turn: state.turn + 1,
+        phase: nextPhase,
         hasDiscarded: false,
         hasDrawn: false,
         hasPlayedAction: false,
-        message: t('game.messages.discardPhase'),
-        canEndTurn: false
+        selectedCards: [],
+        message: nextPhase === 'discard' 
+          ? t('game.messages.discardPhase')
+          : t('game.messages.drawPhase'),
+        playedCardsLastTurn: state.selectedCards.length
+      };
+    });
+  },
+
+  handleDiscard: (card: Card) => {
+    set((state) => {
+      if (state.phase !== 'discard' || state.hasDiscarded) {
+        return state;
+      }
+
+      const isFromHand = state.currentPlayer.hand.some(c => c.id === card.id);
+      const isFromReserve = state.currentPlayer.reserve.some(c => c.id === card.id);
+      
+      const newHand = isFromHand 
+        ? state.currentPlayer.hand.filter(c => c.id !== card.id)
+        : [...state.currentPlayer.hand];
+        
+      const newReserve = isFromReserve
+        ? state.currentPlayer.reserve.filter(c => c.id !== card.id)
+        : [...state.currentPlayer.reserve];
+      
+      const newDiscardPile = [...state.currentPlayer.discardPile, card];
+
+      return {
+        ...state,
+        currentPlayer: {
+          ...state.currentPlayer,
+          hand: newHand,
+          reserve: newReserve,
+          discardPile: newDiscardPile
+        },
+        hasDiscarded: true,
+        selectedCards: [],
+        phase: 'draw',
+        message: t('game.messages.drawPhase')
       };
     });
   },
@@ -1084,36 +1113,124 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   clearMessage: () => set(state => ({ ...state, message: '', isMessageClickable: false })),
-}));
-// Expose le store pour le debugging
-window.store = useGameStore.getState();
-store.debugGiveJokers();
 
-export function getPhaseMessage(
-  phase: Phase, 
-  hasDiscarded: boolean, 
-  hasDrawn: boolean, 
-  hasPlayedAction: boolean,
-  playedCardsLastTurn: number
-): string {
-  switch (phase) {
-    case 'discard':
-      if (playedCardsLastTurn > 0) {
+  handleActivatorExchange: (columnCard: Card, playerCard: Card) => {
+    set((state) => {
+      if (state.phase !== 'action' || state.hasPlayedAction) return state;
+  
+      const isActivator = (card: Card) => card.type === 'joker' || card.value === '7';
+      if (!isActivator(columnCard) || !isActivator(playerCard)) {
+        return state;
+      }
+  
+      const updatedPlayer = { ...state.currentPlayer };
+      const isInHand = updatedPlayer.hand.some(c => c.id === playerCard.id);
+      
+      if (isInHand) {
+        updatedPlayer.hand = updatedPlayer.hand.map(c => 
+          c.id === playerCard.id ? columnCard : c
+        );
+      } else {
+        updatedPlayer.reserve = updatedPlayer.reserve.map(c => 
+          c.id === playerCard.id ? columnCard : c
+        );
+      }
+  
+      const updatedColumns = { ...state.columns };
+      const targetColumn = Object.values(updatedColumns).find(col => 
+        col.reserveSuit?.id === columnCard.id
+      );
+  
+      if (targetColumn) {
+        targetColumn.reserveSuit = playerCard;
+      }
+  
+      return {
+        ...state,
+        currentPlayer: updatedPlayer,
+        columns: updatedColumns,
+        hasPlayedAction: true,
+        exchangeMode: false,
+        selectedForExchange: null,
+        playedCardsLastTurn: 0,
+        message: "Échange d'activateurs effectué",
+        canEndTurn: true,
+        phase: 'action'
+      };
+    });
+  },
+
+  getPhaseMessage: (phase: Phase, hasDiscarded: boolean, hasDrawn: boolean, hasPlayedAction: boolean, playedCardsLastTurn: number): string => {
+    switch (phase) {
+      case 'discard':
+        if (playedCardsLastTurn > 0) {
+          return '';
+        }
+        return hasDiscarded ? '' : t('phase.discard');
+        
+      case 'draw':
+        return hasDrawn ? '' : t('phase.draw');
+        
+      case 'action':
+        if (hasPlayedAction) {
+          return '';
+        }
+        return t('phase.action');
+        
+      default:
         return '';
-      }
-      return hasDiscarded ? '' : t('phase.discard');
-      
-    case 'draw':
-      return hasDrawn ? '' : t('phase.draw');
-      
-    case 'action':
-      if (hasPlayedAction) {
-        return t('actions.endTurn');
-      }
-      return t('phase.action');
-      
-    default:
-      return '';
-  }
-}
+    }
+  },
 
+  handleSevenAction: (sevenCard: Card) => {
+    set((state) => {
+      if (sevenCard.value !== '7' || state.hasPlayedAction || state.phase !== 'action') {
+        return state;
+      }
+
+      let updatedPlayer = { ...state.currentPlayer };
+
+      // Logique pour placer le "7" dans la colonne appropriée
+      updatedPlayer.hand = updatedPlayer.hand.filter(c => c.id !== sevenCard.id);
+      updatedPlayer.reserve = updatedPlayer.reserve.filter(c => c.id !== sevenCard.id);
+      updatedPlayer.discardPile = [...updatedPlayer.discardPile, sevenCard];
+
+      return {
+        ...state,
+        currentPlayer: updatedPlayer,
+        hasPlayedAction: true,
+        selectedCards: [],
+        playedCardsLastTurn: 1,
+        message: `7 placé dans la colonne appropriée!`,
+        canEndTurn: true,
+        phase: 'action'
+      };
+    });
+  }
+}));
+
+export const handleSevenAction = (sevenCard: Card) => {
+  set((state) => {
+    if (sevenCard.value !== '7' || state.hasPlayedAction || state.phase !== 'action') {
+      return state;
+    }
+
+    let updatedPlayer = { ...state.currentPlayer };
+
+    // Logique pour placer le "7" dans la colonne appropriée
+    updatedPlayer.hand = updatedPlayer.hand.filter(c => c.id !== sevenCard.id);
+    updatedPlayer.reserve = updatedPlayer.reserve.filter(c => c.id !== sevenCard.id);
+    updatedPlayer.discardPile = [...updatedPlayer.discardPile, sevenCard];
+
+    return {
+      ...state,
+      currentPlayer: updatedPlayer,
+      hasPlayedAction: true,
+      selectedCards: [],
+      playedCardsLastTurn: 1,
+      message: `7 placé dans la colonne appropriée!`,
+      canEndTurn: true,
+      phase: 'action'
+    };
+  });
+};
