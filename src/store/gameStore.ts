@@ -998,6 +998,37 @@ export const useGameStore = create<GameStore>((set, get) => ({
         const newHand = state.currentPlayer.hand.filter(c => c.id !== card.id);
         const newReserve = state.currentPlayer.reserve.filter(c => c.id !== card.id);
 
+        // Vérifier si la colonne atteint 10 cartes
+        if (column.cards.length === 9) {
+          // Créer une copie de toutes les cartes de la colonne plus la nouvelle carte
+          const cardsForRevolution = [...column.cards, card];
+          
+          // Message de révolution
+          alert('RÉVOLUTION !');
+          
+          // Retourner les cartes dans la pile de défausse
+          return {
+            ...state,
+            currentPlayer: {
+              ...state.currentPlayer,
+              discardPile: [...state.currentPlayer.discardPile, ...cardsForRevolution]
+            },
+            columns: {
+              ...state.columns,
+              [suit]: {
+                ...column,
+                cards: [], // Vider la colonne
+                reserveSuit: null,
+                activatorType: null
+              }
+            },
+            hasPlayedAction: true,
+            selectedCards: [],
+            playedCardsLastTurn: 1,
+            message: 'Révolution ! Les cartes ont été défaussées.'
+          };
+        }
+
         return {
           ...state,
           columns: {
