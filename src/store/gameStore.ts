@@ -41,11 +41,11 @@ interface GameState {
 
 // Ajout du type pour le store complet
 export interface GameStore extends GameState {
-  selectCard: (card: CardType) => void;
-  handleDiscard: (card: CardType) => void;
+  selectCard: (card: Card) => void;
+  handleDiscard: (card: Card) => void;
   handleDrawCard: () => void;
-  exchangeCards: (card1: CardType, card2: CardType) => void;
-  handleJokerAction: (joker: CardType, action: 'heal' | 'attack') => void;
+  exchangeCards: (card1: Card, card2: Card) => void;
+  handleJokerAction: (joker: Card, action: 'heal' | 'attack') => void;
   setAttackMode: (mode: boolean) => void;
   setMessage: (message: string) => void;
   handleStrategicShuffle: () => void;
@@ -382,7 +382,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         hasPlayedAction: true,
         canEndTurn: true,
         playedCardsLastTurn: 0,
-        message: "Action passée"
+        message: t('game.messages.actionSkipped')
       };
     });
   },
@@ -684,35 +684,55 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   endTurn: () => {
     set((state) => {
-      // Calculer combien de cartes manquent pour avoir 7 cartes
       const totalCards = state.currentPlayer.hand.length + state.currentPlayer.reserve.length;
-      const cardsNeeded = 7 - totalCards;
+      const nextPhase = totalCards >= 7 ? 'discard' : 'draw';
 
-      // Si on a joué des cartes au tour précédent
-      if (state.playedCardsLastTurn > 0) {
-        // On passe directement à la phase de pioche pour compléter la main
-        return {
-          ...state,
-          phase: 'draw',
-          turn: state.turn + 1,
-          hasDiscarded: true, // On skip la phase de défausse
-          hasDrawn: false,
-          hasPlayedAction: false,
-          message: t('game.messages.drawPhase'),
-          canEndTurn: false
-        };
-      }
-
-      // Si on n'a pas joué de cartes, on doit défausser
       return {
         ...state,
-        phase: 'discard',
-        turn: state.turn + 1,
+        phase: nextPhase,
         hasDiscarded: false,
         hasDrawn: false,
         hasPlayedAction: false,
-        message: t('game.messages.discardPhase'),
-        canEndTurn: false
+        selectedCards: [],
+        message: nextPhase === 'discard' 
+          ? t('game.messages.discardPhase')
+          : t('game.messages.drawPhase'),
+        playedCardsLastTurn: state.selectedCards.length
+      };
+    });
+  },
+
+  handleDiscard: (card: Card) => {
+    set((state) => {
+      if (state.phase !== 'discard' || state.hasDiscarded) {
+        return state;
+      }
+
+      const isFromHand = state.currentPlayer.hand.some(c => c.id === card.id);
+      const isFromReserve = state.currentPlayer.reserve.some(c => c.id === card.id);
+      
+      const newHand = isFromHand 
+        ? state.currentPlayer.hand.filter(c => c.id !== card.id)
+        : [...state.currentPlayer.hand];
+        
+      const newReserve = isFromReserve
+        ? state.currentPlayer.reserve.filter(c => c.id !== card.id)
+        : [...state.currentPlayer.reserve];
+      
+      const newDiscardPile = [...state.currentPlayer.discardPile, card];
+
+      return {
+        ...state,
+        currentPlayer: {
+          ...state.currentPlayer,
+          hand: newHand,
+          reserve: newReserve,
+          discardPile: newDiscardPile
+        },
+        hasDiscarded: true,
+        selectedCards: [],
+        phase: 'draw',
+        message: t('game.messages.drawPhase')
       };
     });
   },
@@ -925,7 +945,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
           card.type === 'joker' || card.value === '7'
         );
         
-        if (hasFaceCard && hasActivator && position === 0) {
+        if (hasFaceCard && hasActivator) {
           const faceCard = state.selectedCards.find(card => card.value === 'J' || card.value === 'K');
           const activator = state.selectedCards.find(card => 
             card.type === 'joker' || card.value === '7'
@@ -1034,7 +1054,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
         // Si on place un 7 dans la séquence principale, on verrouille la reserveSuit
         const shouldLockReserveSuit = card.value === '7';
-
+        
         return {
           ...state,
           columns: {

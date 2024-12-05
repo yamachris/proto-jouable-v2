@@ -18,9 +18,13 @@
       "queenHealing": "La Dame vous soigne de {{amount}} PV !",
       "queenChallengeResult": "Défi {{result}} ! Vous gagnez {{amount}} PV ❤️",
       "queenChallengeStart": "Défi de la Bonne Dame lancé !",
+<<<<<<< HEAD
       "cardExchanged": "Cartes échangées",
       "reserveLocked": "Réserve bloquée pour cette colonne",
       "sevenPlaced": "7 de {{suit}} placé dans la colonne"
+=======
+      "cardExchanged": "Cartes échangées"
+>>>>>>> 01bf4681126789ba58165fba17d9dfb91ff0a53d
     },
     "gameOver": {
       "title": "Partie Terminée",

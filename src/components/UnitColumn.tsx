@@ -5,7 +5,10 @@ import { cn } from '../utils/cn';
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../store/gameStore';
 import { CardExchangeButton } from './CardExchangeButton';
+<<<<<<< HEAD
 import { PlaceButton } from './PlaceButton';
+=======
+>>>>>>> 01bf4681126789ba58165fba17d9dfb91ff0a53d
 
 interface UnitColumnProps {
   suit: Suit;
@@ -69,6 +72,7 @@ export function UnitColumn({ suit, column, onCardPlace, isActive }: UnitColumnPr
                 </span>
               )}
             </div>
+<<<<<<< HEAD
             
             {/* Afficher soit le bouton Placer soit le bouton Échanger */}
             {hasSixCards ? (
@@ -85,6 +89,12 @@ export function UnitColumn({ suit, column, onCardPlace, isActive }: UnitColumnPr
                 activatorCard={column.reserveSuit}
               />
             )}
+=======
+            <CardExchangeButton 
+              activatorCard={column.reserveSuit}
+              column={column}
+            />
+>>>>>>> 01bf4681126789ba58165fba17d9dfb91ff0a53d
           </div>
         )}
       </div>
