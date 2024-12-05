@@ -17,7 +17,10 @@
       "slotOccupied": "Cet emplacement est déjà occupé",
       "queenHealing": "La Dame vous soigne de {{amount}} PV !",
       "queenChallengeResult": "Défi {{result}} ! Vous gagnez {{amount}} PV ❤️",
-      "queenChallengeStart": "Défi de la Bonne Dame lancé !"
+      "queenChallengeStart": "Défi de la Bonne Dame lancé !",
+      "cardExchanged": "Cartes échangées",
+      "reserveLocked": "Réserve bloquée pour cette colonne",
+      "sevenPlaced": "7 de {{suit}} placé dans la colonne"
     },
     "gameOver": {
       "title": "Partie Terminée",
@@ -49,7 +52,11 @@
       "surrender": "Abandonner",
       "skipAction": "Passer l'Action",
       "endTurn": "Fin du Tour",
-      "strategicShuffle": "Mélange Stratégique"
+      "strategicShuffle": "Mélange Stratégique",
+      "confirmSurrender": "Êtes-vous sûr de vouloir abandonner la partie ?",
+      "nextPhase": "Phase Suivante",
+      "startTurn": "Démarrer le Tour",
+      "place": "Placer"
     },
     "ui": {
       "startMessage": "Sélectionnez votre première carte à défausser",

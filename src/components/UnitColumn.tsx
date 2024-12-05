@@ -4,6 +4,8 @@ import { Suit, ColumnState } from '../types/game';
 import { cn } from '../utils/cn';
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../store/gameStore';
+import { CardExchangeButton } from './CardExchangeButton';
+import { PlaceButton } from './PlaceButton';
 
 interface UnitColumnProps {
   suit: Suit;
@@ -14,7 +16,10 @@ interface UnitColumnProps {
 
 export function UnitColumn({ suit, column, onCardPlace, isActive }: UnitColumnProps) {
   const { t } = useTranslation();
-  const { selectedCards } = useGameStore();
+  const { selectedCards, currentPlayer } = useGameStore();
+
+  // Vérifie si on a 6 cartes dans la colonne
+  const hasSixCards = column.cards.length === 6;
 
   const getSuitIcon = () => {
     const iconClass = cn(
@@ -36,31 +41,49 @@ export function UnitColumn({ suit, column, onCardPlace, isActive }: UnitColumnPr
         
         {/* Indicateur d'activation (Joker ou 7) */}
         {column.reserveSuit && (
-          <div className="flex items-center gap-1">
-            <span className={cn(
-              "text-sm font-bold",
-              column.reserveSuit.type === 'joker'
-                ? (column.reserveSuit.color === 'red' 
-                    ? "text-red-500" 
-                    : "text-gray-700 dark:text-gray-300")
-                : "text-yellow-500 dark:text-yellow-400" // Style pour le 7
-            )}>
-              {column.reserveSuit.type === 'joker' ? 'J' : '7'}
-            </span>
-
-            {/* Enseigne pour le 7 */}
-            {column.reserveSuit.value === '7' && (
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
               <span className={cn(
-                "text-sm",
-                column.reserveSuit.color === 'red'
-                  ? "text-red-500" 
-                  : "text-gray-700 dark:text-gray-300"
+                "text-sm font-bold",
+                column.reserveSuit.type === 'joker'
+                  ? (column.reserveSuit.color === 'red' 
+                      ? "text-red-500" 
+                      : "text-gray-700 dark:text-gray-300")
+                  : "text-yellow-500 dark:text-yellow-400" // Style pour le 7
               )}>
-                {column.reserveSuit.suit === 'hearts' && '♥️'}
-                {column.reserveSuit.suit === 'diamonds' && '♦️'}
-                {column.reserveSuit.suit === 'clubs' && '♣️'}
-                {column.reserveSuit.suit === 'spades' && '♠️'}
+                {column.reserveSuit.type === 'joker' ? 'J' : '7'}
               </span>
+
+              {/* Enseigne pour le 7 */}
+              {column.reserveSuit.value === '7' && (
+                <span className={cn(
+                  "text-sm",
+                  column.reserveSuit.color === 'red'
+                    ? "text-red-500" 
+                    : "text-gray-700 dark:text-gray-300"
+                )}>
+                  {column.reserveSuit.suit === 'hearts' && '♥️'}
+                  {column.reserveSuit.suit === 'diamonds' && '♦️'}
+                  {column.reserveSuit.suit === 'clubs' && '♣️'}
+                  {column.reserveSuit.suit === 'spades' && '♠️'}
+                </span>
+              )}
+            </div>
+            
+            {/* Afficher soit le bouton Placer soit le bouton Échanger */}
+            {hasSixCards ? (
+              <PlaceButton
+                hasSixthCard={hasSixCards}
+                columnSuit={suit}
+                onPlace={onCardPlace}
+                playerHand={currentPlayer.hand}
+                playerReserve={currentPlayer.reserve}
+                reserveSuitCard={column.reserveSuit}
+              />
+            ) : (
+              <CardExchangeButton 
+                activatorCard={column.reserveSuit}
+              />
             )}
           </div>
         )}

@@ -28,21 +28,29 @@ export const ECG: React.FC<ECGProps> = ({
     if (!ctx) return;
 
     const baseY = height / 2;  // Ligne de base au milieu du canvas
-    const speed = 1;  // Vitesse de déplacement du tracé
+    const speed = 0.5;  // Vitesse ralentie pour ~45 BPM (sommeil)
     
     // Fonction pour calculer la position Y du tracé ECG
     const getYPosition = (x: number) => {
-      const cycle = x % 40;  // Cycle de 40 pixels
-      let y = baseY;  // Position Y de base
+      const cycle = x % 60; // Ajustement du cycle à 60 pixels pour plus de détails
+      let y = baseY;
 
-      // Génération de la forme QRS sur 5 pixels
-      if (cycle < 5) {
-        const phase = cycle / 5;
-        if (phase < 0.2) y = baseY + 1;      // Q: légère montée
-        else if (phase < 0.4) y = baseY - 10; // R: pic vers le haut
-        else if (phase < 0.6) y = baseY + 2;  // S: légère descente
+      // Onde P
+      if (cycle < 10) {
+        y = baseY - 2 * Math.sin((Math.PI * cycle) / 10);
       }
-      
+      // Complexe QRS
+      else if (cycle < 20) {
+        const phase = (cycle - 10) / 10;
+        if (phase < 0.2) y = baseY + 1;
+        else if (phase < 0.4) y = baseY - 10;
+        else if (phase < 0.6) y = baseY + 2;
+      }
+      // Onde T
+      else if (cycle < 40) {
+        y = baseY + 2 * Math.sin((Math.PI * (cycle - 20)) / 20);
+      }
+
       return y;
     };
 

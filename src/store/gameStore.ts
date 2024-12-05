@@ -35,6 +35,8 @@ interface GameState {
     queen: Card | null;
   };
   isMessageClickable: boolean;
+  exchangeMode: boolean;
+  selectedForExchange: Card | null;
 }
 
 // Ajout du type pour le store complet
@@ -54,6 +56,22 @@ export interface GameStore extends GameState {
   getState: () => GameStore;
   handleCardPlace: (suit: Suit, position: number) => void;
   handleQueenChallenge: (isCorrect: boolean) => void;
+  handleCardExchange: (columnCard: Card, playerCard: Card) => void;
+  getPhaseMessage: (phase: Phase, hasDiscarded: boolean, hasDrawn: boolean, hasPlayedAction: boolean, playedCardsLastTurn: number) => string;
+  removeReserveSuit: (suit: Suit) => void;
+  placeCardInColumn: (card: Card, suit: Suit) => void;
+}
+
+// Interface définissant la structure d'une colonne
+interface ColumnState {
+  cards: Card[];
+  reserveSuit: Card | null;
+  hasLuckyCard?: boolean;
+  faceCards?: {
+    [key: string]: Card;
+  };
+  activatorType?: 'JOKER' | '7';
+  isLocked?: boolean;  // Nouvelle propriété pour indiquer si la reserveSuit est verrouillée
 }
 
 // Création du store avec Zustand
@@ -78,10 +96,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
   turn: 1,
   selectedCards: [],
   columns: {
-    hearts: { cards: [], isLocked: false, hasLuckyCard: false, activatorType: null, sequence: [], reserveSuit: null },
-    diamonds: { cards: [], isLocked: false, hasLuckyCard: false, activatorType: null, sequence: [], reserveSuit: null },
-    clubs: { cards: [], isLocked: false, hasLuckyCard: false, activatorType: null, sequence: [], reserveSuit: null },
-    spades: { cards: [], isLocked: false, hasLuckyCard: false, activatorType: null, sequence: [], reserveSuit: null }
+    hearts: { cards: [], reserveSuit: null, isLocked: false },
+    diamonds: { cards: [], reserveSuit: null, isLocked: false },
+    clubs: { cards: [], reserveSuit: null, isLocked: false },
+    spades: { cards: [], reserveSuit: null, isLocked: false }
   },
   hasDiscarded: false,
   hasDrawn: false,
@@ -98,6 +116,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
     queen: null
   },
   isMessageClickable: false,
+  exchangeMode: false,
+  selectedForExchange: null,
 
   initializeGame: () => {
     // Création et mélange du deck complet
@@ -310,12 +330,14 @@ export const useGameStore = create<GameStore>((set, get) => ({
         return state;
       }
 
+      const totalCards = state.currentPlayer.hand.length;
+
       // Si on a joué des cartes au tour précédent, on passe directement à la phase de pioche
       if (state.playedCardsLastTurn > 0) {
         return {
           ...state,
-          phase: 'draw', // On passe directement à la pioche
-          hasDiscarded: true, // On marque la défausse comme déjà faite
+          phase: 'draw',
+          hasDiscarded: true, // On skip la phase de défausse
           hasDrawn: false,
           hasPlayedAction: false,
           currentPlayer: {
@@ -324,11 +346,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
           },
           selectedCards: [],
           turn: state.turn + 1,
-          message: t('game.messages.drawPhase')
+          message: t('game.messages.drawPhase'),
+          playedCardsLastTurn: 0 // On réinitialise le compteur
         };
       }
 
-      // Si on n'a pas joué de cartes
+      // Si on n'a pas joué de cartes au tour précédent, on va en défausse
       return {
         ...state,
         phase: 'discard',
@@ -341,7 +364,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
         },
         selectedCards: [],
         turn: state.turn + 1,
-        message: t('game.messages.discardPhase')
+        message: t('game.messages.discardPhase'),
+        playedCardsLastTurn: 0 // On réinitialise le compteur
       };
     });
   },
@@ -435,10 +459,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
         return state;
       }
 
-      const isFromHand = state.currentPlayer.hand.some(c => c.id === card.id);
-      const isFromReserve = state.currentPlayer.reserve.some(c => c.id === card.id);
+      const isFromHand = state.currentPlayer.hand.some(c => c.id === card.id); // Vérifie si la carte vient de la main
+      const isFromReserve = state.currentPlayer.reserve.some(c => c.id === card.id); // Vérifie si la carte vient de la réserve
       
-      const newHand = isFromHand 
+      const newHand = isFromHand // Si la carte vient de la main, on la supprime
         ? state.currentPlayer.hand.filter(c => c.id !== card.id)
         : [...state.currentPlayer.hand];
         
@@ -446,7 +470,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         ? state.currentPlayer.reserve.filter(c => c.id !== card.id)
         : [...state.currentPlayer.reserve];
       
-      const newDiscardPile = [...state.currentPlayer.discardPile, card];
+      const newDiscardPile = [...state.currentPlayer.discardPile, card]; // Ajoute la carte à la défausse
 
       return {
         ...state,
@@ -495,6 +519,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
         return state;
       }
 
+
+      
       // Échanger les cartes
       const tempCard = hand[handIndex];
       hand[handIndex] = reserve[reserveIndex];
@@ -605,8 +631,19 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   // Fonction utilitaire pour vérifier si une carte peut être sélectionnée
   canSelectCard: (card: Card) => {
-    // Une carte peut être sélectionnée si elle est dans la main OU dans la rserve
     const state = get();
+    
+    // Vérifier si un 7 est présent dans une des colonnes
+    const has7InAnyColumn = Object.values(state.columns).some(column => 
+      column.cards.some(c => c.value === '7')
+    );
+
+    // Si c'est un 7 ou un JOKER et qu'il y a déjà un 7 dans une colonne, bloquer la sélection
+    if ((card.value === '7' || card.type === 'joker') && has7InAnyColumn) {
+      return false;
+    }
+
+    // Une carte peut être sélectionnée si elle est dans la main OU dans la réserve
     return state.currentPlayer.hand.some(c => c.id === card.id) ||
            state.currentPlayer.reserve.some(c => c.id === card.id);
   },
@@ -801,10 +838,36 @@ export const useGameStore = create<GameStore>((set, get) => ({
     );
   },
 
+  // Vérifie si une colonne est bloquée par un 7
+  isColumnBlocked: (suit: Suit): boolean => {
+    const column = get().columns[suit];
+    return column.cards.some(c => c.value === '7');
+  },
+
   handleCardPlace: (suit: Suit, position: number) => {
     set((state) => {
       const column = state.columns[suit];
       
+      // Vérifier si un 7 est présent dans la séquence principale
+      const has7InSequence = column.cards.some(c => c.value === '7');
+
+      // Si on essaie de placer dans la reserveSuit (position 0)
+      // ET qu'il y a un 7 dans la séquence
+      // ET que la carte est soit un 7 soit un JOKER
+      // ALORS bloquer le placement
+      if (position === 0 && has7InSequence) {
+        const isSevenOrJoker = state.selectedCards.some(card => 
+          card.value === '7' || card.type === 'joker'
+        );
+        
+        if (isSevenOrJoker) {
+          return {
+            ...state,
+            message: t('game.messages.sevenInColumnNoActivator')
+          };
+        }
+      }
+
       // Cas d'activation avec As + Activateur
       if (state.selectedCards.length === 2) {
         const hasAs = state.selectedCards.some(card => card.value === 'A');
@@ -969,13 +1032,17 @@ export const useGameStore = create<GameStore>((set, get) => ({
         const newHand = state.currentPlayer.hand.filter(c => c.id !== card.id);
         const newReserve = state.currentPlayer.reserve.filter(c => c.id !== card.id);
 
+        // Si on place un 7 dans la séquence principale, on verrouille la reserveSuit
+        const shouldLockReserveSuit = card.value === '7';
+
         return {
           ...state,
           columns: {
             ...state.columns,
             [suit]: {
               ...column,
-              cards: [...column.cards, card]
+              cards: [...column.cards, card],
+              isLocked: shouldLockReserveSuit // Verrouiller la reserveSuit si on place un 7 dans la séquence
             }
           },
           currentPlayer: {
@@ -986,7 +1053,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
           selectedCards: [],
           hasPlayedAction: true,
           playedCardsLastTurn: 1,
-          message: t('game.messages.cardPlaced')
+          message: shouldLockReserveSuit 
+            ? t('game.messages.sevenPlacedReserveLocked') // Message spécial quand on place un 7
+            : t('game.messages.cardPlaced')
         };
       }
 
@@ -1027,16 +1096,53 @@ export const useGameStore = create<GameStore>((set, get) => ({
             },
             selectedCards: [],
             hasPlayedAction: true,
-            playedCardsLastTurn: 2,
-            canEndTurn: true,
+            playedCardsLastTurn: 2, // Pour passer directement à la pioche au tour suivant
             message: t('game.messages.queenHealing', {
               amount: healAmount
-            })
+            }),
+            canEndTurn: true
           };
         }
       }
 
       return state;
+    });
+  },
+
+  placeCardInColumn: (card: Card, suit: Suit) => {
+    set(state => {
+      // Créer une copie des colonnes
+      const newColumns = { ...state.columns };
+      
+      // Ajouter la carte à la colonne spécifiée
+      newColumns[suit] = {
+        ...newColumns[suit],
+        cards: [...newColumns[suit].cards, card]
+      };
+
+      // Si c'est un 7 de la bonne couleur, verrouiller la reserveSuit
+      if (card.value === '7' && card.suit === suit) {
+        newColumns[suit].isLocked = true; // Verrouiller la colonne
+      }
+
+      // Retirer la carte de la main ou de la réserve du joueur
+      const newPlayer = { ...state.currentPlayer };
+      const cardInHand = newPlayer.hand.findIndex(c => c.value === card.value && c.suit === card.suit);
+      
+      if (cardInHand !== -1) {
+        newPlayer.hand.splice(cardInHand, 1);
+      } else {
+        const cardInReserve = newPlayer.reserve.findIndex(c => c.value === card.value && c.suit === card.suit);
+        if (cardInReserve !== -1) {
+          newPlayer.reserve.splice(cardInReserve, 1);
+        }
+      }
+
+      return {
+        columns: newColumns,
+        currentPlayer: newPlayer,
+        hasPlayedAction: true
+      };
     });
   },
 
@@ -1084,36 +1190,84 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   clearMessage: () => set(state => ({ ...state, message: '', isMessageClickable: false })),
-}));
-// Expose le store pour le debugging
-window.store = useGameStore.getState();
-store.debugGiveJokers();
 
-export function getPhaseMessage(
-  phase: Phase, 
-  hasDiscarded: boolean, 
-  hasDrawn: boolean, 
-  hasPlayedAction: boolean,
-  playedCardsLastTurn: number
-): string {
-  switch (phase) {
-    case 'discard':
-      if (playedCardsLastTurn > 0) {
+  handleActivatorExchange: (columnCard: Card, playerCard: Card) => {
+    set((state) => {
+      if (state.phase !== 'action' || state.hasPlayedAction) return state;
+  
+      const isActivator = (card: Card) => card.type === 'joker' || card.value === '7';
+      if (!isActivator(columnCard) || !isActivator(playerCard)) {
+        return state;
+      }
+  
+      const updatedPlayer = { ...state.currentPlayer };
+      const isInHand = updatedPlayer.hand.some(c => c.id === playerCard.id);
+      
+      if (isInHand) {
+        updatedPlayer.hand = updatedPlayer.hand.map(c => 
+          c.id === playerCard.id ? columnCard : c
+        );
+      } else {
+        updatedPlayer.reserve = updatedPlayer.reserve.map(c => 
+          c.id === playerCard.id ? columnCard : c
+        );
+      }
+  
+      const updatedColumns = { ...state.columns };
+      const targetColumn = Object.values(updatedColumns).find(col => 
+        col.reserveSuit?.id === columnCard.id
+      );
+  
+      if (targetColumn) {
+        targetColumn.reserveSuit = playerCard;
+      }
+  
+      return {
+        ...state,
+        currentPlayer: updatedPlayer,
+        columns: updatedColumns,
+        hasPlayedAction: true,
+        exchangeMode: false,
+        selectedForExchange: null,
+        playedCardsLastTurn: 0,
+        message: "Échange d'activateurs effectué",
+        canEndTurn: true,
+        phase: 'action'
+      };
+    });
+  },
+
+  getPhaseMessage: (phase: Phase, hasDiscarded: boolean, hasDrawn: boolean, hasPlayedAction: boolean, playedCardsLastTurn: number): string => {
+    switch (phase) {
+      case 'discard':
+        if (playedCardsLastTurn > 0) {
+          return '';
+        }
+        return hasDiscarded ? '' : t('phase.discard');
+        
+      case 'draw':
+        return hasDrawn ? '' : t('phase.draw');
+        
+      case 'action':
+        if (hasPlayedAction) {
+          return '';
+        }
+        return t('phase.action');
+        
+      default:
         return '';
-      }
-      return hasDiscarded ? '' : t('phase.discard');
-      
-    case 'draw':
-      return hasDrawn ? '' : t('phase.draw');
-      
-    case 'action':
-      if (hasPlayedAction) {
-        return t('actions.endTurn');
-      }
-      return t('phase.action');
-      
-    default:
-      return '';
-  }
-}
+    }
+  },
 
+  removeReserveSuit: (suit: Suit) => {
+    set(state => ({
+      columns: {
+        ...state.columns,
+        [suit]: {
+          ...state.columns[suit],
+          reserveSuit: null
+        }
+      }
+    }));
+  },
+}));

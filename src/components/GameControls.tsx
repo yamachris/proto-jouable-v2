@@ -22,6 +22,7 @@ export function GameControls() {
 
   const { t, i18n } = useTranslation();
   const [showModal, setShowModal] = useState(false);
+  const [isActionDone, setIsActionDone] = useState(false);
 
   // Forcer le rendu quand la langue change
   const [, forceUpdate] = useState({});
@@ -46,9 +47,34 @@ export function GameControls() {
     setShowModal(false);
   };
 
+  const handleSurrenderClick = () => {
+    if (window.confirm(t('game.actions.confirmSurrender'))) {
+      handleSurrender();
+    }
+  };
+
+  const handleSkipActionClick = () => {
+    handleSkipAction();
+    setIsActionDone(true); // Débloque le bouton "Fin du Tour" après avoir passé l'action
+  };
+
+  const handleEndTurn = () => {
+    if (isActionDone) {
+      handlePassTurn();
+      setIsActionDone(false); // Réinitialise pour le prochain tour
+    }
+  };
+
+  // Met à jour isActionDone quand une action est jouée
+  useEffect(() => {
+    if (hasPlayedAction) {
+      setIsActionDone(true);
+    }
+  }, [hasPlayedAction]);
+
   const totalCards = currentPlayer.hand.length + currentPlayer.reserve.length;
-  const canPassTurn = phase === 'action' && hasDiscarded && hasDrawn;
-  const canSkipAction = phase === 'action' && !hasPlayedAction;
+  const canPassTurn = phase === 'action' && hasDiscarded && hasDrawn && isActionDone;
+  const canSkipAction = phase === 'action' && !hasPlayedAction && !isActionDone;
 
   const phaseMessage = getPhaseMessage(phase, hasDiscarded, hasDrawn, hasPlayedAction, totalCards, turn);
 
@@ -73,7 +99,7 @@ export function GameControls() {
 
           <div className="flex items-center gap-4">
             <button
-              onClick={handleSurrender}
+              onClick={handleSurrenderClick}
               className="px-4 py-2 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 rounded-lg hover:bg-red-200 dark:hover:bg-red-800 transition-colors duration-300 flex items-center gap-2"
             >
               <Flag className="w-4 h-4" />
@@ -82,7 +108,7 @@ export function GameControls() {
 
             {canSkipAction && (
               <button
-                onClick={handleSkipAction}
+                onClick={handleSkipActionClick}
                 className={cn(
                   "px-4 py-2 rounded-lg transition-colors duration-300 flex items-center gap-2",
                   "bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200",
@@ -95,7 +121,7 @@ export function GameControls() {
             )}
 
             <button
-              onClick={handlePassTurn}
+              onClick={handleEndTurn}
               disabled={!canPassTurn}
               className={cn(
                 "px-6 py-2.5 rounded-lg font-medium flex items-center gap-2",

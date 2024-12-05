@@ -8,6 +8,12 @@ interface GameFooterProps {
 }
 
 export function GameFooter({ currentTurn, onSurrender, playerHealth }: GameFooterProps) {
+  const handleSurrender = () => {
+    if (window.confirm("Êtes-vous sûr de vouloir abandonner la partie ?")) {
+      onSurrender();
+    }
+  };
+
   return (
     <div className="bg-gradient-to-b from-white/95 to-white/90 rounded-b-xl p-4 backdrop-blur-sm">
       <div className="flex justify-between items-center">
@@ -25,7 +31,7 @@ export function GameFooter({ currentTurn, onSurrender, playerHealth }: GameFoote
         </div>
         
         <button
-          onClick={onSurrender}
+          onClick={handleSurrender}
           className="flex items-center gap-2 px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors"
         >
           <Flag className="w-4 h-4" />
